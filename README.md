@@ -52,3 +52,8 @@ http://localhost:3000
 3. Crea una cuenta o inicia sesión
 4. Ingresa una URL larga para acortarla
 5. Copia tu enlace corto en otra pestaña con el botón de copiar ó accede directamente a ella haciendo click sobre el enlace.
+
+
+## Implementaciones futuras
+
+1. Funcionalidad a la opción de recuperación de contraseña con ReSend.
