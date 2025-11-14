@@ -23,20 +23,14 @@ function LoginForm() {
     }
   }, [state, router]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    formAction(formData);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">Bienvenido de vuelta</h2>
-              <p className="text-gray-600 mt-2">Inicia sesión en tu cuenta</p>
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl overflow-hidden">
+          <div className="p-5 sm:p-6 md:p-8">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Bienvenido de vuelta</h2>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Inicia sesión en tu cuenta</p>
             </div>
 
             {registerSuccess && (
@@ -45,7 +39,7 @@ function LoginForm() {
               </div>
             )}
 
-            <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
+            <form action={formAction} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Correo electrónico
@@ -56,7 +50,7 @@ function LoginForm() {
                   name="email"
                   placeholder="tucorreo@ejemplo.com"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 text-sm sm:text-base"
                 />
               </div>
 
@@ -73,12 +67,12 @@ function LoginForm() {
                       placeholder="••••••••"
                       minLength={6}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 pr-12"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 pr-10 sm:pr-12 text-sm sm:text-base"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
+                      className="absolute inset-y-0 right-0 px-2 sm:px-3 flex items-center text-gray-500 hover:text-gray-700"
                       aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
                       {showPassword ? (
@@ -94,7 +88,7 @@ function LoginForm() {
                     </button>
                   </div>
                   <div className="mt-1 text-right">
-                    <a href="#" className="text-sm text-purple-600 hover:text-purple-500">
+                    <a href="#" className="text-xs sm:text-sm text-purple-600 hover:text-purple-500">
                       ¿Olvidaste tu contraseña?
                     </a>
                   </div>
@@ -109,7 +103,7 @@ function LoginForm() {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg hover:opacity-90 transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 text-sm sm:text-base"
               >
                 Iniciar sesión
               </button>
@@ -128,12 +122,12 @@ function LoginForm() {
             </div>
           </div>
 
-          <div className="bg-gray-50 px-8 py-6 rounded-b-2xl text-center">
-            <p className="text-sm text-gray-500">
+          <div className="bg-gray-50 px-5 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-b-xl sm:rounded-b-2xl text-center">
+            <p className="text-xs sm:text-sm text-gray-500">
               Al continuar, aceptas nuestros{" "}
-              <a href="#" className="text-purple-600 hover:underline">Términos de servicio</a>{" "}
+              <a href="#" className="text-purple-600 hover:underline whitespace-nowrap">Términos de servicio</a>{" "}
               y{" "}
-              <a href="#" className="text-purple-600 hover:underline">Política de privacidad</a>.
+              <a href="#" className="text-purple-600 hover:underline whitespace-nowrap">Política de privacidad</a>.
             </p>
           </div>
         </div>
@@ -146,10 +140,10 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-white">Cargando...</p>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-3 sm:mt-4 text-white text-sm sm:text-base">Cargando...</p>
         </div>
       </div>
     }>
