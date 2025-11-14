@@ -29,7 +29,7 @@ function LoginForm() {
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl overflow-hidden">
           <div className="p-5 sm:p-6 md:p-8">
             <div className="text-center mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Bienvenido de vuelta</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Bienvenido</h2>
               <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Inicia sesión en tu cuenta</p>
             </div>
 
