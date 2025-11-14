@@ -1,11 +1,11 @@
 "use client";
 
 import { signInAction } from "@/../server/users";
-import { useActionState, useState } from "react";
-import { useEffect } from "react";
+import { useActionState, useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+// Componente que usa useSearchParams
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const registerSuccess = searchParams.get("register") === "success";
@@ -14,7 +14,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (state?.success) {
-      
       const timer = setTimeout(() => {
         router.push('/dashboard');
         router.refresh(); 
@@ -24,7 +23,6 @@ export default function LoginPage() {
     }
   }, [state, router]);
 
-  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -141,5 +139,21 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Componente principal con Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-white">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
