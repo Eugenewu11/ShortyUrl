@@ -1,5 +1,6 @@
 import { pgTable, integer,text, timestamp, boolean } from "drizzle-orm/pg-core";
 
+//Estas tablas son las que genera Better-Auth para verificar y registrar usuarios
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -60,6 +61,7 @@ export const verification = pgTable("verification", {
     .notNull(),
 });
 
+//Tabla de links
 export const links = pgTable("links", {
   id: text("id").primaryKey(),
   urlOriginal: text("url_original").notNull(),

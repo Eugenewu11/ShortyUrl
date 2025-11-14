@@ -6,12 +6,16 @@ import { nextCookies } from "better-auth/next-js";
 //Configuracion de Better Auth
 
 export const auth = betterAuth({
-  emailAndPassword: {
-    enabled: true,
-    redirectURL: "/dashboard",
-  },
   database: drizzleAdapter(db, {
     provider: "pg", 
   }),
-  plugins: [nextCookies()], 
+  emailAndPassword: {
+    enabled: true,
+  },
+  session: {
+    expiresIn: 30 * 24 * 60 * 60, // 30 días
+  },
+  plugins: [nextCookies()],
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
+  secret: process.env.BETTER_AUTH_SECRET!,
 });

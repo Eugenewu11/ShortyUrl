@@ -1,29 +1,39 @@
-//Verifica la sesion del usuario
 import { cookies } from "next/headers";
+import { auth } from "./auth";
 
 export async function getSession() {
-    //Obtener cookies del cliente
-    const cookieStore = await cookies(); 
-    const authCookie = cookieStore.get("better-auth.session")?.value;
-
-    //Si no hay, no inicia sesion
-    if (!authCookie) return null;
-
+  
   try {
-    const response = await fetch(`${process.env.BETTER_AUTH_URL}/session`, {
-      headers: {
-        Cookie: `better-auth.session=${authCookie}`, //Obtiene los datos de sesion
-      },
-      cache: "no-store",
+    const cookieStore = await cookies();
+    
+    // Crear un objeto Headers estándar
+    const headers = new Headers();
+    
+    // Agregar todas las cookies al header 'Cookie'
+    const cookieString = cookieStore.getAll()
+      .map(cookie => `${cookie.name}=${cookie.value}`)
+      .join('; ');
+    
+    if (cookieString) {
+      headers.set('Cookie', cookieString);
+    }
+
+    console.log("Cookies encontradas:", cookieStore.getAll().map(c => c.name));
+
+    // Usar los headers correctamente
+    const session = await auth.api.getSession({
+      headers: headers
     });
 
-    //Si la respuesta es valida devuelve el json con la informacion de sesion
-    if (response.ok) {
-      const session = await response.json();
-      return session;
-    }
-    return null;
-  } catch {
+    console.log("[auth-utils] Sesión obtenida:", {
+      userId: session?.user?.id,
+      email: session?.user?.email,
+      hasSession: !!session
+    });
+
+    return session;
+  } catch (error) {
+    console.error("[auth-utils] Error al obtener sesión:", error);
     return null;
   }
 }

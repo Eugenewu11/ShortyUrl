@@ -1,87 +1,89 @@
-// app/dashboard/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface Link {
-  id: string;
-  originalUrl: string;
-  shortCode: string;
-  clicks: number;
-  createdAt: string;
-}
+// Manejo de los enlaces
+import { getUserLinksAction, createShortLinkAction } from '../../../lib/link-actions';
+import { EyeIcon} from '@heroicons/react/24/outline';
+import type { Link } from '../../../lib/shortyService';
 
+// Re-exportamos el tipo Link para usarlo en otros componentes
+export type { Link };
+
+// Pagina principal del dashboard
 export default function DashboardPage() {
+  // Hook de navegación
   const router = useRouter();
+  
+  // Estado para la lista de enlaces del usuario
   const [links, setLinks] = useState<Link[]>([]);
+  
+  // Estado del formulario
   const [originalUrl, setOriginalUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // Estado para el feedback de copiado
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+
+  // Cargar los enlaces al montar el componente
   useEffect(() => {
     fetchLinks();
   }, []);
 
+  //Obtiene la lista de enlaces del usuario desde la API
   const fetchLinks = async () => {
     try {
-      const res = await fetch('/api/links');
-      if (!res.ok) {
-        if (res.status === 401) {
-          router.push('/login');
-          return;
-        }
-        throw new Error('Error al cargar los links');
+      const userLinks = await getUserLinksAction();
+      if (Array.isArray(userLinks)) {
+        setLinks(userLinks);
+      } else {
+        setLinks([]);
       }
-      const data = await res.json();
-      setLinks(data.links || []);
     } catch (err: any) {
-      setError(err.message);
+      console.error('Error al cargar los links:', err);
+      setError('Error al cargar los links. Por favor, intenta recargar la página.');
+      
+      // Redirigir a login si el error es de autenticación
+      if (err.message.includes('No autorizado')) {
+        router.push('/login');
+      }
     }
   };
 
-  const handleCreateLink = async (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
     setSuccessMessage('');
-    setLoading(true);
-
-    // Validar URL
+    
     try {
-      new URL(originalUrl);
-    } catch {
-      setError('Por favor ingresa una URL válida');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/links', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originalUrl }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al crear el link');
+      const formData = new FormData();
+      formData.append('urlOriginal', originalUrl);
+      
+      const response = await createShortLinkAction(formData);
+      
+      if (response?.error) {
+        setError(response.error);
+        return;
       }
-
+      
       setSuccessMessage('¡Link creado exitosamente!');
       setOriginalUrl('');
-      fetchLinks();
+      await fetchLinks(); // Recargar la lista de enlaces
     } catch (err: any) {
-      setError(err.message);
+      console.error('Error al crear el enlace:', err);
+      setError(err.message || 'Error al crear el enlace');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCopyLink = (shortCode: string, id: string) => {
-    const fullUrl = `${window.location.origin}/${shortCode}`;
+  const handleCopyLink = (urlCortado: string, id: string) => {
+    const fullUrl = `${window.location.origin}/${urlCortado}`;
     navigator.clipboard.writeText(fullUrl);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -94,13 +96,13 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
+      {/*Header*/}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">🔗 Acortador de Links</h1>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-md hover:shadow-lg"
           >
             Cerrar Sesión
           </button>
@@ -108,11 +110,11 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Create Link Form */}
+        {/*Formulario para insertar enlaces y recortarlos */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Crear Nuevo Link</h2>
           
-          <form onSubmit={handleCreateLink} className="space-y-4">
+          <form onSubmit={handleFormSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -128,9 +130,10 @@ export default function DashboardPage() {
             <div className="flex gap-3">
               <input
                 type="url"
+                name="urlOriginal"
                 value={originalUrl}
                 onChange={(e) => setOriginalUrl(e.target.value)}
-                placeholder="https://ejemplo.com/tu-url-larga"
+                placeholder="Pega aquí tu enlace"
                 required
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               />
@@ -145,7 +148,7 @@ export default function DashboardPage() {
           </form>
         </div>
 
-        {/* Links List */}
+        {/*Lista de enlaces*/}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Links</h2>
           
@@ -164,24 +167,31 @@ export default function DashboardPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                          {window.location.origin}/{link.shortCode}
-                        </span>
+                        <a 
+                          href={`/${link.urlCortado}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 hover:bg-indigo-200 transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.open(`/${link.urlCortado}`, '_blank');
+                          }}
+                        >
+                          {link.urlCortado}
+                        </a>
                         <button
-                          onClick={() => handleCopyLink(link.shortCode, link.id)}
+                          onClick={() => handleCopyLink(link.urlCortado, link.id)}
                           className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
                         >
                           {copiedId === link.id ? '✓ Copiado' : 'Copiar'}
                         </button>
                       </div>
-                      
                       <p className="text-gray-600 text-sm truncate mb-2">
-                        {link.originalUrl}
+                        {link.urlOriginal}
                       </p>
-                      
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>👁️ {link.clicks} clics</span>
-                        <span>📅 {new Date(link.createdAt).toLocaleDateString('es-ES')}</span>
+                      <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
+                        <EyeIcon className="h-4 w-4 text-gray-400" />
+                        <span>{link.clicks || 0} visitas</span>
                       </div>
                     </div>
                   </div>
